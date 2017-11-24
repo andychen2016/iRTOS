@@ -5,13 +5,13 @@
 
 
 
-extern tTask* gCurrentTask;
-extern tTask* gNextTask;
+extern Task* gCurrentTask;
+extern Task* gNextTask;
 extern tBitmap gTaskPrioBitmap;
 
 extern List gTaskTable[TASK_SCHED_MAX_PRIO];
-extern tTask* gCurrentTask;
-extern tTask* gNextTask;
+extern Task* gCurrentTask;
+extern Task* gNextTask;
 
 extern List gTaskDelayList;
 extern uint8_t gSchedLockCount;
@@ -22,22 +22,23 @@ extern uint8_t gSchedLockCount;
 void TaskDelayListInit(void);
 void TaskSchedInit(void);
 
-void TaskSchedReady(tTask* task);
-void TaskSchedUnReady(tTask* task);
-void TaskSchedRemove(tTask* task);
+void TaskSchedReady(Task* task);
+void TaskSchedUnReady(Task* task);
+void TaskSchedRemove(Task* task);
 
-tTask* GetHighestReady(void);
+Task* GetHighestReady(void);
 
 void TaskSchedDisable(void);
 void TaskSchedEnable(void);
 
 void TaskSched(void);
 
-void TimeTaskWait(tTask* task, uint32_t ticks);
-void TimeTaskWakeUp(tTask* task);
-void TimeTaskRemove(tTask* task);
+void TimeTaskWait(Task* task, uint32_t ticks);
+void TimeTaskWakeUp(Task* task);
+void TimeTaskRemove(Task* task);
 
 
 
 
 #endif
+

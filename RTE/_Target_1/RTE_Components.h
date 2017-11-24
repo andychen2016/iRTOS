@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Component Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'tinyOS' 
+ * Project: 'iRTOS' 
  * Target:  'Target 1' 
  */
 

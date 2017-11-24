@@ -1,4 +1,4 @@
-#include "os.h"
+#include "irtos.h"
 
 
 void TaskDelay(int delaySysTick)
@@ -22,3 +22,5 @@ void SoftDelay(void)
 
     }
 }
+
+

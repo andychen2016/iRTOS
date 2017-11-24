@@ -1,12 +1,12 @@
-#include "os.h"
+#include "irtos.h"
 #include "config.h"
 #include "lib.h"
 
 tBitmap gTaskPrioBitmap;
 
 List gTaskTable[TASK_SCHED_MAX_PRIO];
-tTask* gCurrentTask;
-tTask* gNextTask;
+Task* gCurrentTask;
+Task* gNextTask;
 
 List gTaskDelayList;
 uint8_t gSchedLockCount;
@@ -28,13 +28,13 @@ void TaskSchedInit(void)
     }
 }
 
-void TaskSchedReady(tTask* task)
+void TaskSchedReady(Task* task)
 {
     ListAddLast(&(gTaskTable[task->prio]), &(task->linkNode));
     BitmapSet(&gTaskPrioBitmap, task->prio);
 }
 
-void TaskSchedUnReady(tTask* task)
+void TaskSchedUnReady(Task* task)
 {
     ListRemove(&(gTaskTable[task->prio]), &(task->linkNode));
 
@@ -44,7 +44,7 @@ void TaskSchedUnReady(tTask* task)
     }
 }
 
-void TaskSchedRemove(tTask* task)
+void TaskSchedRemove(Task* task)
 {
     ListRemove(&(gTaskTable[task->prio]), &(task->linkNode));
     
@@ -54,11 +54,11 @@ void TaskSchedRemove(tTask* task)
     }
 }
 
-tTask* GetHighestReady(void)
+Task* GetHighestReady(void)
 {
     uint32_t highestPrio = BitmapGetFirstSet(&gTaskPrioBitmap);  //虽然最大值为32 但是总有一个idle任务在运行
     Node* node = ListFirst(&gTaskTable[highestPrio]);
-    return (tTask*)ParentAddress(node,tTask,linkNode);
+    return (Task*)ParentAddress(node,Task,linkNode);
 }
 
 void TaskSchedDisable(void)
@@ -87,7 +87,7 @@ void TaskSchedEnable(void)
 
 void TaskSched(void)
 {
-    tTask* tempTask;
+    Task* tempTask;
     uint32_t status = TaskEnterCritical();
     if(gSchedLockCount > 0)
     {
@@ -99,12 +99,17 @@ void TaskSched(void)
     if(tempTask != gCurrentTask)
     {
         gNextTask = tempTask;
+
+        #if OS_ENABLE_HOOKS == 1
+        TaskSwitch_Hooks(gCurrentTask, gNextTask);
+        #endif
+
         TaskSwitch();
     }
     TaskExitCritical(status);
 }
 
-void TimeTaskWait(tTask* task, uint32_t ticks)
+void TimeTaskWait(Task* task, uint32_t ticks)
 {
     task->delaySysTick = ticks;
     ListAddLast(&gTaskDelayList, &(task->delayNode));
@@ -112,14 +117,14 @@ void TimeTaskWait(tTask* task, uint32_t ticks)
 }
 
 
-void TimeTaskWakeUp(tTask* task)
+void TimeTaskWakeUp(Task* task)
 {
     ListRemove(&gTaskDelayList, &(task->delayNode));
     //ListAddLast(&gTaskTable[task->prio], &(task->linkNode));
     task->state &= ~TASK_STATE_DELAYED;
 }
 
-void TimeTaskRemove(tTask* task)
+void TimeTaskRemove(Task* task)
 {
     ListRemove(&gTaskDelayList, &(task->delayNode));
 }

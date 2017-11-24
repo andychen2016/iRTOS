@@ -4,22 +4,26 @@
 #include <stdint.h>
 #include "lib.h"
 #include "config.h"
-#include "event.h"
 #include "task.h"
 #include "scheduler.h"
 #include "ARMCM3.h"
 
+#include "msgbox.h"
+#include "sem.h"
+#include "event.h"
 
-//-----defines
-//task state
+#include "memblock.h"
+#include "flaggroup.h"
+
+#include "mutex.h"
+#include "timer.h"
+#include "hooks.h"
 
 
-
-//typedefs
-
-			
-
-//externs
+//extern vars
+extern uint32_t gIdleCount;
+extern Task gTaskIdle;
+extern TaskStack gTaskIdle_Stack[TASK_STACK_SIZE];
 
 
 
@@ -47,6 +51,12 @@ void InitApps(void);
 void SetSysTickPeriod(uint32_t ms);
 void TaskSysTick_Handler(void);
 void SysTick_Handler(void);
+
+void SystemTickInit(void);
+void InitCpuUseageStat(void);
+void CheckCpuUsage(void);
+void CpuUsageSyncWithSysTick (void);
+float CpuUsageGet(void);
 
 
 

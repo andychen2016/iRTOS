@@ -1,47 +1,60 @@
-#include "os.h"
+#include "irtos.h"
+#include "event.h"
 
 
-void TaskInit(tTask* pTask, void (*entry)(void*), uint32_t prio, void* param, tTaskStack* pStack)
+void TaskInit(Task* task, void (*entry)(void*), uint32_t prio, void* param, TaskStack* pStack, uint32_t size)
 {
-    *(--pStack) = (unsigned long)(0x1 << 24);
-    *(--pStack) = (unsigned long)(entry);
-    *(--pStack) = (unsigned long)0x14;
-    *(--pStack) = (unsigned long)0x12;
-    *(--pStack) = (unsigned long)0x3;
-    *(--pStack) = (unsigned long)0x2;
-    *(--pStack) = (unsigned long)0x1;
-    *(--pStack) = (unsigned long)param;
+    uint32_t* stack_top;
 
-    *(--pStack) = (unsigned long)0x11;
-    *(--pStack) = (unsigned long)0x10;
-    *(--pStack) = (unsigned long)0x9;
-    *(--pStack) = (unsigned long)0x8;
-    *(--pStack) = (unsigned long)0x7;
-    *(--pStack) = (unsigned long)0x6;
-    *(--pStack) = (unsigned long)0x5;
-    *(--pStack) = (unsigned long)0x4;
+    task->stack_base = pStack;
+    task->stack_size = size;
+    memset(task->stack_base, 0, size);
 
-    pTask->pStack = pStack;
-    pTask->delaySysTick = 0;    
-    pTask->prio = prio;
-		pTask->slice = TASK_SLICE_MAX;
-    pTask->state = TASK_STATE_READY;
-    pTask->suspendCount = 0;
-    pTask->clean_fun = (void(*)(void*))0;
-    pTask->clean_param = (void*)0;
-    pTask->requestDeleteFlag = 0;
+    stack_top = task->stack_base + size / sizeof(TaskStack);
 
-    pTask->wait_event = (Event*)0;
-    pTask->event_msg = (void*);
-    pTask->wait_event_result = ErrorNoError;
+    *(--stack_top) = (unsigned long)(0x1 << 24);
+    *(--stack_top) = (unsigned long)(entry);
+    *(--stack_top) = (unsigned long)0x14;
+    *(--stack_top) = (unsigned long)0x12;
+    *(--stack_top) = (unsigned long)0x3;
+    *(--stack_top) = (unsigned long)0x2;
+    *(--stack_top) = (unsigned long)0x1;
+    *(--stack_top) = (unsigned long)param;
 
-    NodeInit(&(pTask->delayNode));
-    NodeInit(&(pTask->linkNode));
-    ListAddLast(&(gTaskTable[prio]), &(pTask->linkNode));
-    BitmapSet(&gTaskPrioBitmap, prio);
+    *(--stack_top) = (unsigned long)0x11;
+    *(--stack_top) = (unsigned long)0x10;
+    *(--stack_top) = (unsigned long)0x9;
+    *(--stack_top) = (unsigned long)0x8;
+    *(--stack_top) = (unsigned long)0x7;
+    *(--stack_top) = (unsigned long)0x6;
+    *(--stack_top) = (unsigned long)0x5;
+    *(--stack_top) = (unsigned long)0x4;
+
+    task->pStack = stack_top;
+    task->delaySysTick = 0;    
+    task->prio = prio;
+	task->slice = TASK_SLICE_MAX;
+    task->state = TASK_STATE_READY;
+    task->suspendCount = 0;
+    task->clean_fun = (void(*)(void*))0;
+    task->clean_param = (void*)0;
+    task->requestDeleteFlag = 0;
+
+    task->wait_event = (Event*)0;
+    task->event_msg = (void*)0;
+    task->wait_event_result = ErrorNoError;
+
+    NodeInit(&(task->delayNode));
+    NodeInit(&(task->linkNode));
+    
+    TaskSchedReady(task);
+
+#if OS_ENABLE_HOOKS == 1
+    TaskInit_Hooks(task);
+#endif
 }
 
-void TaskSuspend(tTask* task)
+void TaskSuspend(Task* task)
 {
     uint32_t status = TaskEnterCritical();
 
@@ -49,7 +62,7 @@ void TaskSuspend(tTask* task)
     {   
         if(task->suspendCount++ < 1)
         {
-            task->state != TASK_STATE_SUSPEND;
+            task->state |= TASK_STATE_SUSPEND;
             TaskSchedUnReady(task);
             if(task == gCurrentTask)
             {
@@ -61,7 +74,7 @@ void TaskSuspend(tTask* task)
     TaskExitCritical(status);
 }
 
-void TaskWakeUp(tTask* task)
+void TaskWakeUp(Task* task)
 {
     uint32_t status = TaskEnterCritical();
 
@@ -82,13 +95,13 @@ void TaskWakeUp(tTask* task)
 }
 
 
-void TaskSetCleanFunc(tTask* task, void(*clean)(void*), void* param)
+void TaskSetCleanFunc(Task* task, void(*clean)(void*), void* param)
 {
     task->clean_fun = clean;
     task->clean_param = param;
 }
 
-void TaskForceDelete(tTask* task)
+void TaskForceDelete(Task* task)
 {
     uint32_t status = TaskEnterCritical();
 
@@ -104,7 +117,7 @@ void TaskForceDelete(tTask* task)
     if(task->clean_fun)
     {
         task->clean_fun(task->clean_param);
-        task->state != TASK_STATE_DELETED;
+        task->state |= TASK_STATE_DELETED;
     }
 
     if(gCurrentTask == task)
@@ -115,7 +128,7 @@ void TaskForceDelete(tTask* task)
     TaskExitCritical(status);
 }
 
-void TaskRequestDelete(tTask* task)
+void TaskRequestDelete(Task* task)
 {
     uint32_t status = TaskEnterCritical();
 
@@ -124,7 +137,7 @@ void TaskRequestDelete(tTask* task)
     TaskExitCritical(status);
 }
 
-uint8_t TaskIsRequestDelete(tTask* task)
+uint8_t TaskIsRequestDelete(Task* task)
 {
     uint8_t delFlag;
     uint32_t status = TaskEnterCritical();
@@ -135,7 +148,7 @@ uint8_t TaskIsRequestDelete(tTask* task)
     return delFlag;
 }
 
-void TaskDeleteSelf(tTask* task)
+void TaskDeleteSelf(Task* task)
 {
     uint32_t status = TaskEnterCritical();
     
@@ -144,7 +157,7 @@ void TaskDeleteSelf(tTask* task)
     if(task->clean_fun)
     {
         task->clean_fun(task->clean_param);
-        task->state != TASK_STATE_DELETED;
+        task->state |= TASK_STATE_DELETED;
     }
 
     TaskSched();
@@ -153,14 +166,25 @@ void TaskDeleteSelf(tTask* task)
 }
 
 
-void TaskGetInfo(tTask* task, TaskInfo* info)
+void TaskGetInfo(Task* task, TaskInfo* info)
 {
+    uint32_t *stack_end;
+    uint32_t *stack_start;
     uint32_t status = TaskEnterCritical();
 
     info->delaySysTick = task->delaySysTick;
     info->slice = task->slice;
     info->suspendCount = task->suspendCount;
     info->prio = task->prio;
+
+    info->stack_free_size = 0;
+    stack_end = task->stack_base;
+    stack_start = task->stack_base + task->stack_size / sizeof(TaskStack);
+    while((*stack_end++ == 0) && (stack_end <= stack_start))
+    {
+        info->stack_free_size ++;
+    }
+    info->stack_free_size *= sizeof(TaskStack);
 
     TaskExitCritical(status);
 }

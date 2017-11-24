@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>tinyOS</OutputName>
+          <OutputName>iRTOS</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
@@ -366,7 +366,7 @@
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>.\Objects\tinyOS.sct</ScatterFile>
+            <ScatterFile>.\Objects\iRTOS.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -388,11 +388,6 @@
               <FileName>switch.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Source\switch.c</FilePath>
-            </File>
-            <File>
-              <FileName>config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Source\config.h</FilePath>
             </File>
             <File>
               <FileName>list.c</FileName>
@@ -420,24 +415,9 @@
               <FilePath>.\Source\scheduler.c</FilePath>
             </File>
             <File>
-              <FileName>task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Source\task.c</FilePath>
-            </File>
-            <File>
               <FileName>time.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Source\time.c</FilePath>
-            </File>
-            <File>
-              <FileName>lib.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Source\lib.h</FilePath>
-            </File>
-            <File>
-              <FileName>os.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Source\os.h</FilePath>
             </File>
             <File>
               <FileName>event.c</FileName>
@@ -445,9 +425,24 @@
               <FilePath>.\Source\event.c</FilePath>
             </File>
             <File>
+              <FileName>sem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\sem.c</FilePath>
+            </File>
+            <File>
+              <FileName>config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\config.h</FilePath>
+            </File>
+            <File>
               <FileName>event.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Source\event.h</FilePath>
+            </File>
+            <File>
+              <FileName>lib.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\lib.h</FilePath>
             </File>
             <File>
               <FileName>scheduler.h</FileName>
@@ -455,9 +450,84 @@
               <FilePath>.\Source\scheduler.h</FilePath>
             </File>
             <File>
+              <FileName>sem.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\sem.h</FilePath>
+            </File>
+            <File>
               <FileName>task.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Source\task.h</FilePath>
+            </File>
+            <File>
+              <FileName>msgbox.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\msgbox.c</FilePath>
+            </File>
+            <File>
+              <FileName>msgbox.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\msgbox.h</FilePath>
+            </File>
+            <File>
+              <FileName>memblock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\memblock.c</FilePath>
+            </File>
+            <File>
+              <FileName>memblock.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\memblock.h</FilePath>
+            </File>
+            <File>
+              <FileName>flaggroup.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\flaggroup.c</FilePath>
+            </File>
+            <File>
+              <FileName>flaggroup.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\flaggroup.h</FilePath>
+            </File>
+            <File>
+              <FileName>mutex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\mutex.c</FilePath>
+            </File>
+            <File>
+              <FileName>mutex.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\mutex.h</FilePath>
+            </File>
+            <File>
+              <FileName>timer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\timer.h</FilePath>
+            </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>hooks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\hooks.c</FilePath>
+            </File>
+            <File>
+              <FileName>hooks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\hooks.h</FilePath>
+            </File>
+            <File>
+              <FileName>irtos.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Source\irtos.h</FilePath>
+            </File>
+            <File>
+              <FileName>task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\task.c</FilePath>
             </File>
           </Files>
         </Group>

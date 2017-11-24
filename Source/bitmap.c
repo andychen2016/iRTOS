@@ -1,6 +1,7 @@
 #include "lib.h"
 
 
+
 void BitmapInit(tBitmap* bm)
 {
     bm->bitmap = 0;
