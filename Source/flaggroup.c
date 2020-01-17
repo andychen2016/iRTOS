@@ -54,8 +54,8 @@ uint32_t FlagGroupWait (FlagGroup * flag_group,
     result = FlagGroupCheckAndConsume(flag_group, wait_type, &flags);
     if(result != ErrorNoError)
     {
-        gCurrentTask->wait_flag_type = wait_type;
-        gCurrentTask->event_request_flags = request_flags;
+        gCurrentTask->waitFlagType = wait_type;
+        gCurrentTask->eventRequestFlags = request_flags;
 
         EventWait(&(flag_group->event), gCurrentTask, (void*)0, EventTypeFlagGroup, wait_ticks);
 
@@ -63,8 +63,8 @@ uint32_t FlagGroupWait (FlagGroup * flag_group,
 
         TaskSched();
 
-        *result_flags = gCurrentTask->event_request_flags;
-        result = gCurrentTask->wait_event_result;
+        *result_flags = gCurrentTask->eventRequestFlags;
+        result = gCurrentTask->waitEventResult;
     }
     else
     {
@@ -108,18 +108,18 @@ void FlagGroupNotify(FlagGroup* group, uint32_t is_set, uint32_t flags)
         group->flags &= ~flags;
     }
 
-    wait_list = &(group->event.wait_list);
+    wait_list = &(group->event.waitList);
     for(node = wait_list->headNode.nextNode; node != &(wait_list->headNode); node = next_node)
 	{
-        tTask* task = ParentAddress(node, tTask, linkNode);
-        uint32_t flags_inner = task->event_request_flags;
+        Task* task = ParentAddress(node, Task, linkNode);
+        uint32_t flags_inner = task->eventRequestFlags;
 
         next_node = node->nextNode;     //这里一定要提前取，不然后面EventWakeUpTask会将task->linkNode移除
 
-        result = FlagGroupCheckAndConsume(group, task->wait_flag_type, &flags_inner);
+        result = FlagGroupCheckAndConsume(group, task->waitFlagType, &flags_inner);
         if(result == ErrorNoError)
         {
-            task->event_request_flags = flags_inner;
+            task->eventRequestFlags = flags_inner;
             EventWakeUpTask(&(group->event), task, (void*)0, ErrorNoError);
             sched = 1;  
         } 
@@ -139,7 +139,7 @@ void FlagGroupGetInfo(FlagGroup* group, FlagGroupInfo* info)
 {
     uint32_t status = TaskEnterCritical();
 
-    info->wait_count = EventWaitCount(&(group->event));
+    info->waitCount = EventWaitCount(&(group->event));
     info->flags = group->flags;
     
     TaskExitCritical(status);

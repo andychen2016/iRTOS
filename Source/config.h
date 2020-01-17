@@ -15,13 +15,13 @@
 
 
 //操作系统裁剪相关配置
-#define OS_ENABLE_SEM               0
-#define OS_ENABLE_FLAG_GROUP        0
-#define OS_ENABLE_MEMBLOCK          0
-#define OS_EMABLE_MSGBOX            0
-#define OS_ENABLE_MUTEX             0
-#define OS_ENABLE_TIMER             0
-#define OS_ENABLE_HOOKS             0
+#define OS_ENABLE_SEM               1
+#define OS_ENABLE_FLAG_GROUP        1
+#define OS_ENABLE_MEMBLOCK          1
+#define OS_ENABLE_MSGBOX            1
+#define OS_ENABLE_MUTEX             1
+#define OS_ENABLE_TIMER             1
+#define OS_ENABLE_HOOKS             1
 
 
 

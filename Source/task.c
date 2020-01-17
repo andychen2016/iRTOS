@@ -2,15 +2,15 @@
 #include "event.h"
 
 
-void TaskInit(Task* task, void (*entry)(void*), uint32_t prio, void* param, TaskStack* pStack, uint32_t size)
+void TaskInit(Task* ptr_task, void (*entry)(void*), uint32_t prio, void* param, TaskStack* ptr_stack, uint32_t size)
 {
     uint32_t* stack_top;
 
-    task->stack_base = pStack;
-    task->stack_size = size;
-    memset(task->stack_base, 0, size);
+    ptr_task->stackBase = ptr_stack;
+    ptr_task->stackSize = size;
+    memset(ptr_task->stackBase, 0, size);
 
-    stack_top = task->stack_base + size / sizeof(TaskStack);
+    stack_top = ptr_task->stackBase + size / sizeof(TaskStack);
 
     *(--stack_top) = (unsigned long)(0x1 << 24);
     *(--stack_top) = (unsigned long)(entry);
@@ -30,27 +30,27 @@ void TaskInit(Task* task, void (*entry)(void*), uint32_t prio, void* param, Task
     *(--stack_top) = (unsigned long)0x5;
     *(--stack_top) = (unsigned long)0x4;
 
-    task->pStack = stack_top;
-    task->delaySysTick = 0;    
-    task->prio = prio;
-	task->slice = TASK_SLICE_MAX;
-    task->state = TASK_STATE_READY;
-    task->suspendCount = 0;
-    task->clean_fun = (void(*)(void*))0;
-    task->clean_param = (void*)0;
-    task->requestDeleteFlag = 0;
+    ptr_task->ptrStack = stack_top;
+    ptr_task->delaySysTick = 0;    
+    ptr_task->prio = prio;
+	ptr_task->slice = TASK_SLICE_MAX;
+    ptr_task->state = TASK_STATE_READY;
+    ptr_task->suspendCount = 0;
+    ptr_task->cleanFun = (void(*)(void*))NULL;
+    ptr_task->cleanParam = (void*)NULL;
+    ptr_task->requestDeleteFlag = 0;
 
-    task->wait_event = (Event*)0;
-    task->event_msg = (void*)0;
-    task->wait_event_result = ErrorNoError;
+    ptr_task->waitEvent = (Event*)NULL;
+    ptr_task->eventMsg = (void*)NULL;
+    ptr_task->waitEventResult = ErrorNoError;
 
-    NodeInit(&(task->delayNode));
-    NodeInit(&(task->linkNode));
+    NodeInit(&(ptr_task->delayNode));
+    NodeInit(&(ptr_task->linkNode));
     
-    TaskSchedReady(task);
+    TaskSchedReady(ptr_task);
 
 #if OS_ENABLE_HOOKS == 1
-    TaskInit_Hooks(task);
+    TaskInitHooks(ptr_task);
 #endif
 }
 
@@ -97,8 +97,8 @@ void TaskWakeUp(Task* task)
 
 void TaskSetCleanFunc(Task* task, void(*clean)(void*), void* param)
 {
-    task->clean_fun = clean;
-    task->clean_param = param;
+    task->cleanFun = clean;
+    task->cleanParam = param;
 }
 
 void TaskForceDelete(Task* task)
@@ -114,9 +114,9 @@ void TaskForceDelete(Task* task)
         TaskSchedRemove(task);
     }
 
-    if(task->clean_fun)
+    if(task->cleanFun)
     {
-        task->clean_fun(task->clean_param);
+        task->cleanFun(task->cleanParam);
         task->state |= TASK_STATE_DELETED;
     }
 
@@ -154,9 +154,9 @@ void TaskDeleteSelf(Task* task)
     
     TaskSchedRemove(task);
 
-    if(task->clean_fun)
+    if(task->cleanFun)
     {
-        task->clean_fun(task->clean_param);
+        task->cleanFun(task->cleanParam);
         task->state |= TASK_STATE_DELETED;
     }
 
@@ -177,14 +177,14 @@ void TaskGetInfo(Task* task, TaskInfo* info)
     info->suspendCount = task->suspendCount;
     info->prio = task->prio;
 
-    info->stack_free_size = 0;
-    stack_end = task->stack_base;
-    stack_start = task->stack_base + task->stack_size / sizeof(TaskStack);
+    info->stackFreeSize = 0;
+    stack_end = task->stackBase;
+    stack_start = task->stackBase + task->stackSize / sizeof(TaskStack);
     while((*stack_end++ == 0) && (stack_end <= stack_start))
     {
-        info->stack_free_size ++;
+        info->stackFreeSize ++;
     }
-    info->stack_free_size *= sizeof(TaskStack);
+    info->stackFreeSize *= sizeof(TaskStack);
 
     TaskExitCritical(status);
 }

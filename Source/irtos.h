@@ -21,19 +21,22 @@
 
 
 //extern vars
-extern uint32_t gIdleCount;
-extern Task gTaskIdle;
-extern TaskStack gTaskIdle_Stack[TASK_STACK_SIZE];
+extern uint32_t 	gIdleCount;
+extern Task 		gTaskIdle;
+extern TaskStack 	gTaskIdleStack[TASK_STACK_SIZE];
 
 
 
 //switch
-void TaskRunFisrt(void);
-void TaskSwitch(void);
-uint32_t TaskEnterCritical(void);
-void TaskExitCritical(uint32_t primask);
-__asm void PendSV_Handler(void);
-void TaskRunFisrt(void);
+void 		TaskRunFisrt(void);
+
+void 		TaskSwitch(void);
+
+uint32_t 	TaskEnterCritical(void);
+
+void 		TaskExitCritical(uint32_t primask);
+
+__asm void 	PendSV_Handler(void);
 
 
 
@@ -49,20 +52,28 @@ void InitApps(void);
 
 //CPU
 void SetSysTickPeriod(uint32_t ms);
+
 void TaskSysTick_Handler(void);
+
 void SysTick_Handler(void);
 
 void SystemTickInit(void);
+
 void InitCpuUseageStat(void);
+
 void CheckCpuUsage(void);
+
 void CpuUsageSyncWithSysTick (void);
+
 float CpuUsageGet(void);
 
 
 
 //time
-void TaskDelay(int delaySysTick);
+void TaskDelay(uint32_t delay_sys_tick);
+
 void SoftDelay(void);
+
 
 
 #endif	//end os.h

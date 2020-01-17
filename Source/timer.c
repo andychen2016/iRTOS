@@ -12,27 +12,28 @@ static Sem          gTimerProtectSem;
 static Sem          gTimerTickSem;
 
 static Task         gTimerModuleTask;
+
 static TaskStack    gTimerModuleTaskStack[TASK_STACK_SIZE];
 
 
 
 void TimerInit(Timer* timer, uint32_t delay_ticks, uint32_t duration_ticks, 
-    void (*timerfunc)(void* arg), void* arg, uint32_t config)
+				void (*timer_func)(void* args), void* args, uint32_t config)
 {
-    NodeInit(&(timer->link_node));
-    timer->start_delay_ticks = delay_ticks;
-    timer->duration_ticks = duration_ticks;
-    timer->timer_func = timerfunc;
-    timer->arg = arg;
+    NodeInit(&(timer->linkNode));
+    timer->startDelayTicks = delay_ticks;
+    timer->durationTicks = duration_ticks;
+    timer->timerFunc = timer_func;
+    timer->args = args;
     timer->config = config;
 
-    if(timer->start_delay_ticks == 0)
+    if(timer->startDelayTicks == 0)
     {
-        timer->decrease_ticks = duration_ticks;
+        timer->decreaseTicks = duration_ticks;
     }
     else
     {
-        timer->decrease_ticks = timer->start_delay_ticks;
+        timer->decreaseTicks = timer->startDelayTicks;
     }
     timer->state = TimerCreated;
 }
@@ -49,19 +50,19 @@ void TimerStart(Timer* timer)
         case TimerCreated:
         case TimerStopped:
 
-            timer->decrease_ticks = timer->start_delay_ticks ? timer->start_delay_ticks : timer->duration_ticks;
+            timer->decreaseTicks = timer->startDelayTicks ? timer->startDelayTicks : timer->durationTicks;
             timer->state = TimerStarted;
             
             if(timer->config & TIMER_TYPE_HARD)
             {
                 uint32_t status = TaskEnterCritical();
-                ListAddLast(&gTimerHardList, &(timer->link_node));
+                ListAddLast(&gTimerHardList, &(timer->linkNode));
                 TaskExitCritical(status);
             }
             else
             {
                 SemWait(&gTimerProtectSem, 0);
-                ListAddLast(&gTimerSoftList, &(timer->link_node));
+                ListAddLast(&gTimerSoftList, &(timer->linkNode));
                 SemNotify(&gTimerProtectSem);
             }
             break;
@@ -80,13 +81,13 @@ void TimerStop(Timer* timer)
             if(timer->config & TIMER_TYPE_HARD)
             {
                 uint32_t status = TaskEnterCritical();
-                ListRemove(&gTimerHardList, &(timer->link_node));
+                ListRemove(&gTimerHardList, &(timer->linkNode));
                 TaskExitCritical(status);
             }
             else
             {
                 SemWait(&gTimerProtectSem, 0);
-                ListRemove(&gTimerSoftList, &(timer->link_node));
+                ListRemove(&gTimerSoftList, &(timer->linkNode));
                 SemNotify(&gTimerProtectSem);
             }
             break;
@@ -106,10 +107,10 @@ void TimerGetInfo(Timer* timer, TimerInfo* info)
 {
     uint32_t status = TaskEnterCritical();
     
-    info->start_delay_ticks = timer->start_delay_ticks;
-    info->duration_ticks = timer->duration_ticks;
-    info->timer_func = timer->timer_func;
-    info->arg = timer->arg;
+    info->startDelayTicks = timer->startDelayTicks;
+    info->durationTicks = timer->durationTicks;
+    info->timerFunc = timer->timerFunc;
+    info->args = timer->args;
     info->state = timer->state;
     info->config = timer->config;
 
@@ -124,20 +125,20 @@ void TimerCallFuncs(List* timer_list)
 
     for(node = timer_list->headNode.nextNode; node != &(timer_list->headNode); node = next_node)
     {
-        Timer* timer = ParentAddress(node, Timer, link_node);
+        Timer* timer = ParentAddress(node, Timer, linkNode);
         next_node = node->nextNode;
 
-        if((timer->decrease_ticks == 0) ||(--timer->decrease_ticks == 0))
+        if((timer->decreaseTicks == 0) ||(--timer->decreaseTicks == 0))
         {
             timer->state = TimerCallingFunc;
 
-            timer->timer_func(timer->arg);
+            timer->timerFunc(timer->args);
 
             timer->state = TimerStarted;
 
-            if(timer->duration_ticks > 0)
+            if(timer->durationTicks > 0)
             {
-                timer->decrease_ticks = timer->duration_ticks;
+                timer->decreaseTicks = timer->durationTicks;
             }
             else
             {
@@ -151,7 +152,7 @@ void TimerCallFuncs(List* timer_list)
 //硬中断调用
 void TimerModuleTickNotify(void)
 {
-    uint32_t status =TaskEnterCritical();
+    uint32_t status = TaskEnterCritical();
 
     TimerCallFuncs(&gTimerHardList);        //保证硬中断先运行
 

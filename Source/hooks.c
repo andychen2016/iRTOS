@@ -20,12 +20,13 @@ void SystemTick_Hooks(void)
 
 }
 
-void TaskSwitch_Hooks(tTask* task_from, tTask* task_to)
+void TaskSwitchHooks(Task* task_from, Task* task_to)
 {
     //TODO
+	
 }
 
-void TaskInit_Hooks(tTask* task)
+void TaskInitHooks(Task* task)
 {
     //TODO
 

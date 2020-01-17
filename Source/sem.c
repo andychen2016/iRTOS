@@ -10,7 +10,7 @@ void SemInit(Sem* sem, uint32_t start_count, uint32_t max_count)
 {
     EventInit(&(sem->event), EventTypeSem);
 
-    sem->max_count = max_count;
+    sem->maxCount = max_count;
     if(max_count == 0)
     {
         sem->count = start_count;
@@ -39,7 +39,7 @@ uint32_t SemWait(Sem* sem, uint32_t wait_ticks)
         TaskSched();
 
 
-        return gCurrentTask->wait_event_result;
+        return gCurrentTask->waitEventResult;
     }
 
 }
@@ -67,7 +67,7 @@ uint32_t SemNotify(Sem* sem)
 
     if(EventWaitCount(&(sem->event)) > 0)
     {
-        tTask* task = EventWakeUp(&(sem->event), (void*)0, ErrorNoError);
+        Task* task = EventWakeUp(&(sem->event), (void*)0, ErrorNoError);
         if(task->prio < gCurrentTask->prio)
         {
             TaskSched();
@@ -76,14 +76,15 @@ uint32_t SemNotify(Sem* sem)
     else
     {
         ++sem->count;
-        if((sem->max_count != 0) && (sem->count > sem->max_count))
+        if((sem->maxCount != 0) && (sem->count > sem->maxCount))
         {
-            sem->count = sem->max_count;
+            sem->count = sem->maxCount;
         } 
     }
 
     TaskExitCritical(status);
-
+	
+	return 0;
 }
 
 uint32_t SemDestroy(Sem* sem)
@@ -110,8 +111,8 @@ void SemGetInfo(Sem* sem, SemInfo* info)
     uint32_t status = TaskEnterCritical();
 
     info->count = sem->count;
-    info->max_count = sem->max_count;
-    info->wait_count = EventWaitCount(&(sem->event));
+    info->maxCount = sem->maxCount;
+    info->waitCount = EventWaitCount(&(sem->event));
 
     TaskExitCritical(status);
 }

@@ -6,8 +6,8 @@
 
 void EventInit(Event* event, EventType type)
 {
-    event->event_type = type;
-    ListInit(&(event->wait_list));
+    event->eventType = type;
+    ListInit(&(event->waitList));
 }
 
 void EventWait(Event* event, Task* task, void* msg, uint32_t state, uint32_t timeout)
@@ -15,13 +15,13 @@ void EventWait(Event* event, Task* task, void* msg, uint32_t state, uint32_t tim
     uint32_t status = TaskEnterCritical();
 
     task->state |= (state << 16);
-    task->wait_event = event;
-    task->event_msg = msg;
-    task->wait_event_result = ErrorNoError;
+    task->waitEvent = event;
+    task->eventMsg = msg;
+    task->waitEventResult = ErrorNoError;
 
     TaskSchedUnReady(task);
 
-    ListAddLast(&(event->wait_list), &(task->linkNode));   //将linkNode加入wait_list
+    ListAddLast(&(event->waitList), &(task->linkNode));   //将linkNode加入wait_list
 
     if(timeout)
     {
@@ -36,17 +36,17 @@ void EventWait(Event* event, Task* task, void* msg, uint32_t state, uint32_t tim
 Task* EventWakeUp(Event* event, void* msg, uint32_t result)
 {
     Node* node;
-    Task* task = (Task*)0;
+    Task* task = (Task*)NULL;
 
     uint32_t status = TaskEnterCritical();
 
-    if((node = ListRemoveFirst(&event->wait_list)) != (Node *)0)
+    if((node = ListRemoveFirst(&event->waitList)) != (Node *)0)
     {
         task = (Task*)ParentAddress(node, Task, linkNode);
 
-        task->wait_event = (Event*)0;
-        task->event_msg = msg;
-        task->wait_event_result = result;
+        task->waitEvent = (Event*)0;
+        task->eventMsg = msg;
+        task->waitEventResult = result;
 
         task->state &= ~TASK_WAIT_MASK;
 
@@ -68,11 +68,11 @@ void EventWakeUpTask(Event* event, Task* task, void* msg, uint32_t result)
 {
     uint32_t status = TaskEnterCritical();
 
-    ListRemove(&(event->wait_list), &(task->linkNode));
+    ListRemove(&(event->waitList), &(task->linkNode));
 
-    task->wait_event = (Event*)0;
-    task->event_msg = msg;
-    task->wait_event_result = result;
+    task->waitEvent = (Event*)0;
+    task->eventMsg = msg;
+    task->waitEventResult = result;
     task->state &= ~TASK_WAIT_MASK;
 
     if(task->delaySysTick != 0)
@@ -89,11 +89,11 @@ void EventRemoveTask(Task* task, void* msg, uint32_t result)
 {
     uint32_t status = TaskEnterCritical();
 
-    ListRemove(&(task->wait_event->wait_list), &(task->linkNode));
+    ListRemove(&(task->waitEvent->waitList), &(task->linkNode));
 
-    task->wait_event = (Event*)0;
-    task->event_msg = msg;
-    task->wait_event_result = result;
+    task->waitEvent = (Event*)0;
+    task->eventMsg = msg;
+    task->waitEventResult = result;
 
     task->state &= ~TASK_WAIT_MASK;
 
@@ -106,15 +106,15 @@ uint32_t EventRemoveAll(Event* event, void* msg, uint32_t result)
     uint32_t count;
     uint32_t status = TaskEnterCritical();
 
-    count = ListNodeCount(&(event->wait_list));
+    count = ListNodeCount(&(event->waitList));
 
-    while((node = ListRemoveFirst(&(event->wait_list))) != (Node*)0)
+    while((node = ListRemoveFirst(&(event->waitList))) != (Node*)0)
     {
         Task* task = (Task*)ParentAddress(node, Task, linkNode);
 
-        task->wait_event = (Event*)0;
-        task->wait_event_result = result;
-        task->event_msg = msg;
+        task->waitEvent = (Event*)0;
+        task->waitEventResult = result;
+        task->eventMsg = msg;
         task->state &= ~TASK_WAIT_MASK;     //屏蔽掉所有事件状体
 
         if(task->delaySysTick != 0)
@@ -136,7 +136,7 @@ uint32_t EventWaitCount(Event* event)
     uint32_t count = 0;
     uint32_t status = TaskEnterCritical();
 
-    count = ListNodeCount(&(event->wait_list));
+    count = ListNodeCount(&(event->waitList));
 
     TaskExitCritical(status);
     

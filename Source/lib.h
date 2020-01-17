@@ -4,36 +4,61 @@
 
 #include <stdint.h>
 
+//常用定义
 
-//位图搜索相关函数
-typedef struct
+#ifndef NULL
+#define NULL 0x00
+#endif
+
+
+
+
+
+//位图搜索相关变量及函数声明
+//32位的位图，最高可以支持32个优先级
+typedef struct _tBitmap
 {
     uint32_t bitmap;
-}tBitmap;
+}Bitmap;
 
 
-void BitmapInit(tBitmap* bm);
+
+
+void BitmapInit(Bitmap* bm);
+
+
 
 uint32_t BitmapMaxBit(void);
 
-void BitmapSet(tBitmap* bm, uint32_t pos);
 
-void BitmapClear(tBitmap* bm, uint32_t pos);
-
-uint32_t BitmapGetFirstSet(tBitmap* bm);
+void BitmapSet(Bitmap* bm, uint32_t pos);
 
 
 
-/////双向链表
+void BitmapClear(Bitmap* bm, uint32_t pos);
 
-typedef struct _Node
+
+
+uint32_t BitmapGetFirstSet(Bitmap* bm);
+
+
+
+/////双向链表节点定义
+
+typedef struct _tNode
 {
-    struct _Node* preNode;
-    struct _Node* nextNode;
-}Node;
+    struct _tNode* preNode;
+    struct _tNode* nextNode;
+}	Node;
 
 
 void NodeInit(Node* node);
+
+
+
+
+
+//链表定义
 
 typedef struct _List
 {
@@ -41,32 +66,60 @@ typedef struct _List
     uint32_t nodeCount;
 }List;
 
-#define ParentAddress(node, Parent, name) (Parent*)((uint32_t)node - (uint32_t)&((Parent*)0)->name)
+
+//获取父结构体的指针，用于操作父结构体
+#define ParentAddress(node, parent, name) (parent*)((uint32_t)node - (uint32_t)&((parent*)0)->name)
 
 
 void ListInit(List* list);
 
+
+
+
 uint32_t ListNodeCount(List* list);
+
+
 
 Node* ListFirst(List* list);
 
+
+
 Node* ListLast(List* list);
+
+
 
 Node* ListPreNode(List* list, Node* node);
 
+
+
 Node* ListNextNode(List* list, Node* node);
+
+
 
 void NodeRemoveAll(List* list);
 
+
+
+
 void ListAddFirst(List* list, Node* node);
+
+
 
 void ListAddLast(List* list, Node* node);
 
+
+
 Node* ListRemoveFirst(List* list);
+
+
 
 Node* ListRemoveLast(List* list);
 
-void ListInsertAfter(List* list, Node* nodeAfter, Node* nodeToInsert);
+
+
+void ListInsertAfter(List* list, Node* nodeAfter, Node* node_to_insert);
+
+
 
 void ListRemove(List* list, Node* node);
 

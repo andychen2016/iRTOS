@@ -3,19 +3,19 @@
 
 #include "event.h"
 
-typedef struct _Sem
+typedef struct _tSem
 {
-    Event event;
+    Event 		event;
     uint32_t    count;
-    uint32_t    max_count;
-} Sem;
+    uint32_t    maxCount;
+} 	Sem;
 
-typedef struct _SemInfo
+typedef struct _tSemInfo
 {
-    uint32_t count;
-    uint32_t max_count;
-    uint32_t wait_count;
-} SemInfo;
+    uint32_t 	count;
+    uint32_t 	maxCount;
+    uint32_t 	waitCount;
+} 	SemInfo;
 
 void SemInit(Sem* sem, uint32_t start_count, uint32_t max_count);
 

@@ -1,11 +1,11 @@
 #include "irtos.h"
 
 
-void TaskDelay(int delaySysTick)
+void TaskDelay(uint32_t delay_sys_tick)
 {
     uint32_t status = TaskEnterCritical();
 	
-    TimeTaskWait(gCurrentTask, delaySysTick);
+    TimeTaskWait(gCurrentTask, delay_sys_tick);
     TaskSchedUnReady(gCurrentTask);
     	
     TaskExitCritical(status);

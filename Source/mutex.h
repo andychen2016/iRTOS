@@ -7,34 +7,34 @@
 
 typedef struct _tMutex
 {
-    Event event;
-    uint32_t locked_count;
-    Task* owner_task;
-    uint32_t owner_original_prio;
+    Event 		event;
+    uint32_t 	lockedCount;
+    Task* 		ownerTask;
+    uint32_t 	ownerOriginalPrio;
 } Mutex;
+
 
 typedef  struct _tMutexInfo
 {
-    uint32_t wait_count;
-    uint32_t locked_count;
-    uint32_t owner_prio;
-    uint32_t inherited_prio;
-
-    Task* owner_task;
+    uint32_t 	waitCount;
+    uint32_t 	lockedCount;
+    uint32_t 	ownerPrio;
+    uint32_t 	inheritedPrio;
+	Task*	 	ownerTask;
 } MutexInfo;
 
 
-void MutexInit(Mutex* mutex);
+void 		MutexInit(Mutex* mutex);
 
-uint32_t MutexWait(Mutex* mutex, uint32_t wait_ticks);
+uint32_t 	MutexWait(Mutex* mutex, uint32_t wait_ticks);
 
-uint32_t MutexNoWaitGet(Mutex* mutex);
+uint32_t 	MutexNoWaitGet(Mutex* mutex);
 
-uint32_t MutexNotify(Mutex* mutex);
+uint32_t 	MutexNotify(Mutex* mutex);
 
-void MutexGetInfo(Mutex* mutex, MutexInfo* info);
+void 		MutexGetInfo(Mutex* mutex, MutexInfo* info);
 
-uint32_t MutexDestroy(Mutex* mutex);
+uint32_t 	MutexDestroy(Mutex* mutex);
 
 
 

@@ -11,7 +11,8 @@ void NodeInit(Node* node)
 
 void ListInit(List* list)
 {
-    list->headNode.nextNode = &(list->headNode);
+	/**初始化头节点均指向自己**/
+	list->headNode.nextNode = &(list->headNode);
     list->headNode.preNode = &(list->headNode);
     list->nodeCount = 0;
 }
@@ -23,7 +24,7 @@ uint32_t ListNodeCount(List* list)
 
 Node* ListFirst(List* list)
 {
-    Node* node = (Node*)0;
+    Node* node = (Node*)NULL;
 
     if(list->nodeCount > 0)
     {
@@ -34,7 +35,7 @@ Node* ListFirst(List* list)
 
 Node* ListLast(List* list)
 {
-    Node* node = (Node*)0;
+    Node* node = (Node*)NULL;
 
     if(list->nodeCount > 0)
     {
@@ -43,11 +44,13 @@ Node* ListLast(List* list)
     return node;
 }
 
+//多余函数
 Node* ListPreNode(List* list, Node* node)
 {
-    if(node->preNode == node)
+	
+	if(node->preNode == node)
     {
-        return (Node*)0;
+        return (Node*)NULL;
     }
     else
     {
@@ -55,6 +58,7 @@ Node* ListPreNode(List* list, Node* node)
     }
 }
 
+//多余函数
 Node* ListNextNode(List* list, Node* node)
 {
     if(node->nextNode == node)
@@ -67,28 +71,36 @@ Node* ListNextNode(List* list, Node* node)
     }
 }
 
-//防范是遍历所有节点，然后将所有节点前后节点指向自己,最后将List至于初始化状态
+
+//方法是遍历所有节点，然后将所有节点前后节点指向自己,最后将List至于初始化状态
 void ListRemoveAll(List* list)
 {
     uint32_t count;
-    Node* nextNode;
-    Node* tempNode;
-
-    nextNode = list->headNode.nextNode;
+    Node* next_node;
+    Node* temp_node;
+	
+	//先获取第一个Node
+    next_node = list->headNode.nextNode;
+	
     for(count = list->nodeCount; count != 0; count--)
     {
-        tempNode = nextNode;
-        nextNode = nextNode->nextNode;
-
-        tempNode->preNode = tempNode;
-        tempNode->nextNode = tempNode;
+        temp_node = next_node;
+		//next_node一直都指向下一个
+        next_node = next_node->nextNode;
+		//下一个Node和前一个Node均直接指向本Node
+        temp_node->preNode = temp_node;
+        temp_node->nextNode = temp_node;
     }
-
+	//List中Node前一个Node和下一个Node均指向headNode
+	//同ListInit函数
     list->headNode.preNode = &(list->headNode);
     list->headNode.nextNode = &(list->headNode);
     list->nodeCount = 0;
 }
 
+/*
+ *
+ */
 void ListAddFirst(List* list, Node* node)
 {
     node->preNode = list->headNode.nextNode->preNode;
@@ -114,7 +126,7 @@ void ListAddLast(List* list, Node* node)
 
 Node* ListRemoveFirst(List* list)
 {
-    Node* node = (Node*)0;
+    Node* node = (Node*)NULL;
 
     if(list->nodeCount > 0)
     {
@@ -140,15 +152,15 @@ Node* ListRemovLast(List* list)
     return node;
 }
 
-void ListInsertAfter(List* list, Node* nodeAfter, Node* nodeToInsert)
+void ListInsertAfter(List* list, Node* node_after, Node* node_to_insert)
 {
-    nodeToInsert->preNode = nodeAfter;
-    nodeToInsert->nextNode = nodeAfter->nextNode;
+    node_to_insert->preNode = node_after;
+    node_to_insert->nextNode = node_after->nextNode;
 
-    nodeAfter->nextNode->preNode = nodeToInsert;
-    nodeAfter->nextNode = nodeToInsert;
+    node_after->nextNode->preNode = node_to_insert;
+    node_after->nextNode = node_to_insert;
 
-    list->nodeCount --;
+    list->nodeCount ++;
 }
 
 

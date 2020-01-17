@@ -9,41 +9,41 @@
 
 typedef enum _tTimerState
 {
-    TimerCreated = 0,
-    TimerStarted = 1,
-    TimerCallingFunc = 2,
-    TimerStopped = 3,
-    TimerClosed = 4,
+    TimerCreated 		= 0,
+    TimerStarted 		= 1,
+    TimerCallingFunc 	= 2,
+    TimerStopped 		= 3,
+    TimerClosed 		= 4
 } TimerState;
 
 typedef struct _tTimer
 {
-    Node        link_node;
-    uint32_t    start_delay_ticks;
-    uint32_t    duration_ticks;
-    uint32_t    decrease_ticks;                    //递减数值
+    Node        linkNode;
+    uint32_t    startDelayTicks;
+    uint32_t    durationTicks;
+    uint32_t    decreaseTicks;                    	//递减数值
     
-    void        (*timer_func)(void* arg);       //回调函数
-    void*       arg;                            //回调参数
+    void        (*timerFunc)(void* args);	       	//回调函数
+    void*       args;                            	//回调参数
 
-    uint32_t    config;                         //配置为软件定时器或者是硬件定时器
+    uint32_t    config;                         	//配置为软件定时器或者是硬件定时器
     TimerState  state;
 } Timer;
 
 typedef struct _tTimerInfo
 {
-    uint32_t    start_delay_ticks;
-    uint32_t    duration_ticks;
+    uint32_t    startDelayTicks;
+    uint32_t    durationTicks;
 
-    void        (*timer_func)(void* arg);       //回调函数
-    void*       arg;                            //回调参数
-    uint32_t    config;                         //配置为软件定时器或者是硬件定时器
+    void        (*timerFunc)(void* args);       	//回调函数
+    void*       args;                            	//回调参数
+    uint32_t    config;                         	//配置为软件定时器或者是硬件定时器
     TimerState  state;
 } TimerInfo;
 
 
 void TimerInit(Timer* timer, uint32_t delay_ticks, uint32_t duration_ticks, 
-                void (*timerfunc)(void* arg), void* args, uint32_t config);
+                void (*timer_func)(void* args), void* args, uint32_t config);
 
 
 

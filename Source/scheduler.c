@@ -2,14 +2,14 @@
 #include "config.h"
 #include "lib.h"
 
-tBitmap gTaskPrioBitmap;
+Bitmap 		gTaskPrioBitmap;
 
-List gTaskTable[TASK_SCHED_MAX_PRIO];
-Task* gCurrentTask;
-Task* gNextTask;
+List 		gTaskTable[TASK_SCHED_MAX_PRIO];
+Task* 		gCurrentTask;
+Task* 		gNextTask;
 
-List gTaskDelayList;
-uint8_t gSchedLockCount;
+List 		gTaskDelayList;
+uint8_t 	gSchedLockCount;
 
 
 void TaskDelayListInit(void)
@@ -56,8 +56,8 @@ void TaskSchedRemove(Task* task)
 
 Task* GetHighestReady(void)
 {
-    uint32_t highestPrio = BitmapGetFirstSet(&gTaskPrioBitmap);  //虽然最大值为32 但是总有一个idle任务在运行
-    Node* node = ListFirst(&gTaskTable[highestPrio]);
+    uint32_t highest_prio = BitmapGetFirstSet(&gTaskPrioBitmap);  //虽然最大值为32 但是总有一个idle任务在运行
+    Node* node = ListFirst(&gTaskTable[highest_prio]);
     return (Task*)ParentAddress(node,Task,linkNode);
 }
 
@@ -101,7 +101,7 @@ void TaskSched(void)
         gNextTask = tempTask;
 
         #if OS_ENABLE_HOOKS == 1
-        TaskSwitch_Hooks(gCurrentTask, gNextTask);
+        TaskSwitchHooks(gCurrentTask, gNextTask);
         #endif
 
         TaskSwitch();

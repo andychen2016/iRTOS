@@ -8,10 +8,10 @@ void MsgBoxInit(MsgBox* msg_box, void** buffer, uint32_t max_count)
     EventInit(&(msg_box->event), EventTypeMBox);
 
     msg_box->count = 0;
-    msg_box->max_count = max_count;
-    msg_box->read_idx = 0;
-    msg_box->write_idx = 0;
-    msg_box->msg_buffer = buffer;
+    msg_box->maxCount = max_count;
+    msg_box->readIdx = 0;
+    msg_box->writeIdx = 0;
+    msg_box->msgBuffer = buffer;
 }
 
 
@@ -23,10 +23,10 @@ uint32_t MsgBoxWait(MsgBox* msg_box, void** msg, uint32_t wait_ticks)
     if(msg_box->count > 0)
     {
         --msg_box->count;
-        *msg = msg_box->msg_buffer[msg_box->read_idx ++];
-        if(msg_box->read_idx >= msg_box->max_count)
+        *msg = msg_box->msgBuffer[msg_box->readIdx ++];
+        if(msg_box->readIdx >= msg_box->maxCount)
         {
-            msg_box->read_idx = 0;
+            msg_box->readIdx = 0;
         }
         TaskExitCritical(status);
         return ErrorNoError;
@@ -38,9 +38,9 @@ uint32_t MsgBoxWait(MsgBox* msg_box, void** msg, uint32_t wait_ticks)
 
         TaskSched();
         
-        *msg = gCurrentTask->event_msg;
+        *msg = gCurrentTask->eventMsg;
 
-        return gCurrentTask->wait_event_result;
+        return gCurrentTask->waitEventResult;
     }
 
 }
@@ -53,10 +53,10 @@ uint32_t MsgBoxNoWaitGet(MsgBox* msg_box, void **msg)
     if(msg_box->count > 0)
     {
         --msg_box->count;
-        *msg = msg_box->msg_buffer[msg_box->read_idx ++];
-        if(msg_box->read_idx >= msg_box->max_count)
+        *msg = msg_box->msgBuffer[msg_box->readIdx ++];
+        if(msg_box->readIdx >= msg_box->maxCount)
         {
-            msg_box->read_idx = 0;
+            msg_box->readIdx = 0;
         }
         TaskExitCritical(status);
         return ErrorNoError;
@@ -76,7 +76,7 @@ uint32_t MsgBoxNotify(MsgBox* msg_box, void* msg, uint32_t notify_opt)
 
     if(EventWaitCount(&(msg_box->event)) > 0)
     {
-        tTask* task = EventWakeUp(&(msg_box->event), msg, ErrorNoError);
+        Task* task = EventWakeUp(&(msg_box->event), msg, ErrorNoError);
         
         TaskExitCritical(status);
 
@@ -87,7 +87,7 @@ uint32_t MsgBoxNotify(MsgBox* msg_box, void* msg, uint32_t notify_opt)
     }
     else
     {
-        if(msg_box->count >= msg_box->max_count)
+        if(msg_box->count >= msg_box->maxCount)
         {
             TaskExitCritical(status);
             return ErrorResouceFull;
@@ -95,22 +95,22 @@ uint32_t MsgBoxNotify(MsgBox* msg_box, void* msg, uint32_t notify_opt)
         
         if(notify_opt & MsgBoxSendFront)
         {
-            if(msg_box->read_idx <= 0)
+            if(msg_box->readIdx <= 0)
             {
-                msg_box->read_idx = msg_box->max_count - 1;
+                msg_box->readIdx = msg_box->maxCount - 1;
             }
             else
             {
-                --msg_box->read_idx;
+                --msg_box->readIdx;
             }
-            msg_box->msg_buffer[msg_box->read_idx] = msg;
+            msg_box->msgBuffer[msg_box->readIdx] = msg;
         }
         else
         {
-            msg_box->msg_buffer[msg_box->write_idx++] = msg;
-            if(msg_box->write_idx >= msg_box->max_count)
+            msg_box->msgBuffer[msg_box->writeIdx ++] = msg;
+            if(msg_box->writeIdx >= msg_box->maxCount)
             {
-                msg_box->write_idx = 0;
+                msg_box->writeIdx = 0;
             }
         }
         
@@ -130,8 +130,8 @@ void MsgBoxFlush(MsgBox* msg_box)
     if(EventWaitCount(&(msg_box->event)) == 0)
     {
         msg_box->count = 0;
-        msg_box->read_idx = 0;
-        msg_box->write_idx = 0;
+        msg_box->readIdx = 0;
+        msg_box->writeIdx = 0;
     }
 
     TaskExitCritical(status);
@@ -159,8 +159,8 @@ void MsgBoxGetInfo(MsgBox* msg_box, MsgBoxInfo* info)
     uint32_t status = TaskEnterCritical();
 
     info->count = msg_box->count;
-    info->max_count = msg_box->max_count;
-    info->wait_task_num = EventWaitCount(&(msg_box->event));
+    info->maxCount = msg_box->maxCount;
+    info->waitTaskNum = EventWaitCount(&(msg_box->event));
 
     TaskExitCritical(status);
 }

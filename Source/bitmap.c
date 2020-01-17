@@ -2,7 +2,7 @@
 
 
 
-void BitmapInit(tBitmap* bm)
+void BitmapInit(Bitmap* bm)
 {
     bm->bitmap = 0;
 }
@@ -12,21 +12,28 @@ uint32_t BitmapMaxBit(void)
     return 32;
 }
 
-void BitmapSet(tBitmap* bm, uint32_t pos)
+/*
+ * pos 0~31
+ */
+void BitmapSet(Bitmap* bm, uint32_t pos)
 {
+	if(pos >= 32) return;
     bm->bitmap |= (1 << pos);
 }
 
-void BitmapClear(tBitmap* bm, uint32_t pos)
+void BitmapClear(Bitmap* bm, uint32_t pos)
 {
+	if(pos >= 32) return;
     bm->bitmap &= ~(1 << pos);
 }
 
-uint32_t BitmapGetFirstSet(tBitmap* bm)
+
+//从最低位开始数，寻找第一个1的位置
+uint32_t BitmapGetFirstSet(Bitmap* bm)
 {
     static const uint8_t index_table[] = 
     {
-      /* 00 */ 0xff, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+		/* 00 */ 0xff, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
 	    /* 10 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
 	    /* 20 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
 	    /* 30 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
@@ -43,7 +50,9 @@ uint32_t BitmapGetFirstSet(tBitmap* bm)
 	    /* E0 */ 5,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
 	    /* F0 */ 4,    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
     };
-
+	
+	//每8位数据查询一次，
+	//确定在第一个8位的何处
     if((bm->bitmap & 0xff) > 0 )
     {
         return index_table[bm->bitmap&0xff];

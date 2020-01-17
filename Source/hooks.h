@@ -3,13 +3,13 @@
 
 #include "irtos.h"
 
-void CpuIdle_Hooks(void);
+void 	CpuIdle_Hooks(void);
 
-void SystemTick_Hooks(void);
+void 	SystemTick_Hooks(void);
 
-void TaskSwitch_Hooks(Task* task_from, Task* task_to);
+void 	TaskSwitchHooks(Task* task_from, Task* task_to);
 
-void TaskInit_Hooks(Task* task);
+void 	TaskInitHooks(Task* task);
 
 
 

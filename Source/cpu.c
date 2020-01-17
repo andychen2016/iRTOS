@@ -4,29 +4,29 @@
 
 
 
-uint32_t gTickCount; 
+uint32_t 	gTickCount; 
 
-uint32_t gIdleCount;
-uint32_t gIdleMaxCount;
-uint32_t gIdleMaxCalculated;
+uint32_t 	gIdleCount;
+uint32_t 	gIdleMaxCount;
+uint32_t 	gIdleMaxCalculated;
 
-float    gCpuUsage;
-uint32_t gEnableCpuUsageStat;
+float    	gCpuUsage;
+uint32_t 	gEnableCpuUsageStat;
 
 
 
 void SetSysTickPeriod(uint32_t ms)
 {
 	SysTick->LOAD = ms * SystemCoreClock / 1000 - 1;
-  NVIC_SetPriority (SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-  SysTick->VAL   = 0;                           
-  SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
-                   SysTick_CTRL_TICKINT_Msk   |
-                   SysTick_CTRL_ENABLE_Msk; 
+	NVIC_SetPriority (SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+	SysTick->VAL   = 0;                           
+	SysTick->CTRL  = 	SysTick_CTRL_CLKSOURCE_Msk |
+						SysTick_CTRL_TICKINT_Msk   |
+						SysTick_CTRL_ENABLE_Msk; 
 }
 
 
-void TaskSysTick_Handler(void)
+void TaskSysTickHandler(void)
 {
     Node* node;
     Task* task;
@@ -37,7 +37,7 @@ void TaskSysTick_Handler(void)
         task = ParentAddress(node, Task, delayNode);
         if(--task->delaySysTick == 0)
         {
-            if(task->wait_event)
+            if(task->waitEvent)
             {
                 EventRemoveTask(task, (void*)0, ErrorTimeout);
             }
@@ -72,7 +72,7 @@ void TaskSysTick_Handler(void)
 
 void SysTick_Handler(void)
 {
-    TaskSysTick_Handler();
+    TaskSysTickHandler();
 
 #if OS_ENABLE_HOOKS == 1
     SystemTick_Hooks();
